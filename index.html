@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Status Cinema - Multi-Layout Ultra HD</title>
+    <title>Gerador de Status Cinema - Catálogo Dinâmico HD</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
@@ -29,7 +29,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Painel de Controle Superior */
         .controls {
             background: var(--bg-card);
             padding: 18px;
@@ -51,32 +50,147 @@
             gap: 4px;
         }
 
+        .row-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .row-controls select {
+            flex: 1;
+        }
+
         label {
             font-size: 13px;
             color: var(--text-muted);
             font-weight: 600;
         }
 
-        textarea {
-            padding: 12px;
+        textarea, input[type="text"] {
+            padding: 10px;
             border-radius: 10px;
             border: 1px solid rgba(255,255,255,0.1);
             background-color: var(--bg-main);
             color: var(--text-white);
-            font-size: 15px;
+            font-size: 14px;
             outline: none;
-            resize: vertical;
             font-family: inherit;
         }
 
-        select, input[type="text"], button {
+        select, button {
             padding: 12px;
             border-radius: 10px;
             border: 1px solid rgba(255,255,255,0.1);
             background-color: var(--bg-main);
             color: var(--text-white);
-            font-size: 15px;
+            font-size: 14px;
             outline: none;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+            background: var(--bg-main);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--bg-card);
+            color: #a78bfa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .leque-grid {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 8px 4px;
+            margin-top: 5px;
+            scroll-behavior: smooth;
+        }
+
+        .leque-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+        .leque-grid::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .leque-item {
+            flex: 0 0 85px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .leque-item:hover {
+            transform: scale(1.05);
+        }
+
+        .leque-thumb {
+            width: 85px;
+            height: 125px;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            margin-bottom: 4px;
+        }
+
+        .leque-thumb.season-mode {
+            border: 1px dashed var(--launch-purple);
+        }
+
+        .leque-title {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+
+        .chips-holder {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .selected-chip {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: #c084fc;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .selected-chip span {
+            cursor: pointer;
+            color: #ef4444;
+            font-weight: bold;
         }
 
         .btn-gerar {
@@ -85,7 +199,8 @@
             font-weight: bold;
             cursor: pointer;
             border: none;
-            margin-top: 5px;
+            margin-top: 10px;
+            padding: 14px;
         }
 
         .btn-tudo-em-um {
@@ -98,10 +213,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            padding: 14px;
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
 
-        /* BLOCO MESTRE DA IMAGEM COMPLETA */
         .combo-launch-wrapper {
             width: 440px;
             background-color: var(--bg-main);
@@ -112,7 +227,6 @@
             box-shadow: 0 30px 60px rgba(0,0,0,0.6);
         }
 
-        /* Cabeçalho Unificado */
         .launch-header {
             background: linear-gradient(135deg, #161233, #0f172a);
             padding: 26px 20px;
@@ -139,123 +253,55 @@
             letter-spacing: 4px;
         }
 
-        /* Linha Divisória sutil entre os cards */
         .launch-separator {
             height: 1px;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
             margin: 5px 0;
         }
 
-        /* =======================================================
-           ESTILO DO LAYOUT 1: COMPLETO (CAPA + PERFIL FLUTUANTE)
-           ======================================================= */
-        .premium-container {
+        .combo-container-duo {
             width: 440px;
             box-sizing: border-box;
             display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            background-color: var(--bg-main);
-            padding-bottom: 15px;
-        }
-
-        .movie-cover-banner {
-            width: 100%;
-            height: 220px;
-            position: relative;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .cover-fade {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background: linear-gradient(to bottom, rgba(10, 13, 20, 0) 0%, var(--bg-main) 100%);
-        }
-
-        .profile-overlap-zone {
-            padding: 0 24px;
-            position: relative;
-            height: 70px;
-            display: flex;
-            align-items: flex-end;
-            z-index: 3;
-        }
-
-        .premium-avatar {
-            width: 100px;
-            height: 145px;
-            border-radius: 12px;
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-            border: 3px solid var(--bg-main);
-            position: absolute;
-            bottom: -15px;
-            left: 24px;
-            background-color: #1e293b;
-        }
-
-        .premium-rating {
-            margin-left: 135px;
-            margin-bottom: 4px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--accent-gold);
-        }
-
-        .premium-content {
-            padding: 20px 24px 5px 24px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .premium-title {
-            font-size: 23px;
-            font-weight: 800;
-            color: var(--text-white);
-            line-height: 1.25;
-            margin-bottom: 8px;
-        }
-
-
-        /* =======================================================
-           ESTILO DO LAYOUT 2: COMPACTO SLIM (PERFIL + LADO)
-           ======================================================= */
-        .slim-container {
-            width: 440px;
-            box-sizing: border-box;
-            display: flex;
-            padding: 18px 24px;
-            gap: 18px;
-            background-color: var(--bg-main);
+            padding: 20px 24px;
+            gap: 16px;
             align-items: flex-start;
+            position: relative;
+            background-size: cover;
+            background-position: center center;
+            overflow: hidden;
         }
 
-        .slim-avatar {
-            width: 105px;
-            height: 155px;
+        .combo-container-duo::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 13, 20, 0.92) 30%, rgba(10, 13, 20, 0.75) 70%, rgba(10, 13, 20, 0.95) 100%);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1;
+        }
+
+        .duo-avatar {
+            width: 100px;
+            height: 148px;
             border-radius: 12px;
             background-size: cover;
             background-position: center;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             background-color: #1e293b;
             flex-shrink: 0;
+            z-index: 2;
+            position: relative;
         }
 
-        .slim-content {
+        .duo-content {
             display: flex;
             flex-direction: column;
             flex-grow: 1;
+            z-index: 2;
+            position: relative;
         }
 
         .slim-title-row {
@@ -267,25 +313,37 @@
         }
 
         .slim-title {
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 800;
             color: var(--text-white);
             line-height: 1.25;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .slim-rating {
-            background: rgba(255, 184, 0, 0.1);
-            border: 1px solid rgba(255, 184, 0, 0.2);
+            background: rgba(255, 184, 0, 0.15);
+            border: 1px solid rgba(255, 184, 0, 0.3);
             padding: 3px 8px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 700;
             color: var(--accent-gold);
             white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
+        .slim-rating.upcoming {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+            color: #a78bfa;
+        }
 
-        /* ELEMENTS COMPARTILHADOS (TAGS E SINOPSE) */
+        .slim-rating.new-season {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+
         .metadata-tags-row {
             display: flex;
             flex-wrap: wrap;
@@ -294,35 +352,32 @@
         }
 
         .tag-item {
-            background-color: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 4px 8px;
             border-radius: 5px;
             font-size: 10px;
-            color: #cbd5e1;
+            color: #e2e8f0;
             font-weight: 600;
             text-transform: uppercase;
         }
 
         .tag-item.blue {
-            background-color: rgba(59, 130, 246, 0.12);
-            border-color: rgba(59, 130, 246, 0.2);
+            background-color: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
             color: #60a5fa;
         }
 
         .synopsis-paragraph {
-            color: #94a3b8;
+            color: #cbd5e1;
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.45;
             text-align: justify;
             margin: 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 4; 
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            overflow: visible;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* Rodapé Geral */
         .launch-footer {
             background-color: #0d111a;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -340,65 +395,70 @@
 
     <div class="controls">
         <div class="control-group">
-            <label>1. Escolha o Layout dos Cards:</label>
-            <select id="layout-select">
-                <option value="premium">✨ Completo Premium (Capa + Perfil Flutuante)</option>
-                <option value="slim" selected>📱 Compacto Slim (Apenas Perfil + Lado)</option>
-            </select>
-        </div>
-
-        <div class="control-group">
-            <label>2. Título Principal do Banner:</label>
+            <label>1. Título do Topo da Imagem:</label>
             <select id="header-select" onchange="toggleCustomHeaderInput()">
                 <option value="lançamentos">🚀 Grandes Lançamentos</option>
                 <option value="indicações">🍿 Indicações da Semana</option>
-                <option value="personalizado">✏️ Título Personalizado...</option>
+                <option value="personalizado">✏️ Escrever Título Personalizado...</option>
             </select>
             <input type="text" id="custom-header-title" placeholder="Escreva seu título aqui..." style="display: none; margin-top: 6px;">
         </div>
 
-        <div class="control-group">
-            <label>3. Digite os Filmes/Séries (um por linha):</label>
-            <textarea id="search-input" rows="4" placeholder="Ex:&#10;Mortal Kombat 2&#10;O Diabo Veste Prada"></textarea>
-        </div>
-        
-        <div class="control-group">
-            <label>4. Tipo de Mídia Geral:</label>
-            <select id="type-select">
-                <option value="movie">🎬 Filtrar como Filme</option>
-                <option value="tv">📺 Filtrar como Série</option>
-            </select>
+        <div class="control-group" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+            <div class="row-controls">
+                <label style="color: #60a5fa; flex-grow: 1;">🎬 Buscar Digitados (um por linha):</label>
+                <select id="manual-type-select" style="padding: 4px 8px; font-size: 12px; border-radius: 6px;">
+                    <option value="movie">🎬 Filme</option>
+                    <option value="tv">📺 Série</option>
+                </select>
+            </div>
+            <textarea id="search-input-released" rows="3" placeholder="Ex:&#10;Gladiador 2&#10;Breaking Bad" style="margin-top: 5px;"></textarea>
         </div>
 
-        <button class="btn-gerar" onclick="gerarLoteNaTela()">Montar Lista na Tela</button>
+        <div class="control-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <label style="color: #a78bfa;">🚀 Abra o Leque (Próximas Estreias e Temporadas):</label>
+            
+            <div class="tabs-container">
+                <div class="tab-btn active" onclick="mudarAbaLeque('movies', this)">🎬 Filmes</div>
+                <div class="tab-btn" onclick="mudarAbaLeque('series', this)">📺 Séries</div>
+                <div class="tab-btn" onclick="mudarAbaLeque('seasons', this)">✨ Nova Temp.</div>
+            </div>
+
+            <div class="leque-grid" id="leque-items-holder"></div>
+
+            <div class="chips-holder" id="selected-upcoming-chips"></div>
+        </div>
+
+        <button class="btn-gerar" onclick="gerarLoteNaTela()">Montar Lista Unificada</button>
         <button class="btn-tudo-em-um" onclick="exportarImagemUnica()">Gerar Imagem Única Completa</button>
     </div>
 
     <div class="combo-launch-wrapper" id="master-launch-block" style="display: none;">
-        
         <div class="launch-header">
             <h1 id="header-title">Grandes Lançamentos</h1>
             <p id="header-subtitle">✦ Escolhas Especiais ✦</p>
         </div>
-
         <div id="inside-cards-holder"></div>
-
-        <div class="launch-footer">
-            🍿 Siga para mais dicas diárias 🍿
-        </div>
+        <div class="launch-footer">🍿 Siga para mais dicas diárias 🍿</div>
     </div>
 
     <script>
         const API_KEY = '407d99491b2f26dc699e5171de3ea84e'; 
         const BASE_URL = 'https://api.themoviedb.org/3';
         const PROXY_URL = 'https://images.weserv.nl/?url=';
-        const TMDB_IMAGE_BASE = 'image.tmdb.org/t/p/w780';
+        const TMDB_IMAGE_BASE = 'image.tmdb.org/t/p/w342';
+        const TMDB_BACKDROP_BASE = 'image.tmdb.org/t/p/w780';
 
         const GENRES = {
             28:"Ação", 12:"Aventura", 16:"Animação", 35:"Comédia", 80:"Crime", 99:"Documentário", 18:"Drama", 10751:"Família",
             14:"Fantasia", 36:"História", 27:"Terror", 10402:"Música", 9648:"Mistério", 10749:"Romance", 878:"Ficção Científica",
-            10770:"Cinema TV", 53:"Thriller", 10752:"Guerra", 37:"Faroeste", 10759:"Action & Adventure", 10762:"Kids",
-            10763:"News", 10764:"Reality", 10765:"Sci-Fi & Fantasy", 10766:"Soap", 10767:"Talk", 10768:"War & Politics"
+            10770:"Cinema TV", 53:"Thriller", 10752:"Guerra", 37:"Faroeste", 10759:"Ação/Avent", 10765:"Sci-Fi/Fant"
+        };
+
+        let proximosSelecionados = [];
+
+        window.onload = function() {
+            carregarDadosDoTMDB('movies');
         };
 
         function toggleCustomHeaderInput() {
@@ -406,15 +466,87 @@
             document.getElementById('custom-header-title').style.display = (select === 'personalizado') ? 'block' : 'none';
         }
 
+        function mudarAbaLeque(tipo, elemento) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            elemento.classList.add('active');
+            carregarDadosDoTMDB(tipo);
+        }
+
+        async function carregarDadosDoTMDB(tipo) {
+            const grid = document.getElementById('leque-items-holder');
+            grid.innerHTML = "<div style='font-size:11px; padding:10px; color:#94a3b8;'>Buscando lançamentos...</div>";
+            
+            let url = '';
+            const hoje = new Date().toISOString().split('T')[0];
+
+            if (tipo === 'movies') {
+                url = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=pt-BR&page=1`;
+            } else if (tipo === 'series') {
+                url = `${BASE_URL}/discover/tv?api_key=${API_KEY}&language=pt-BR&sort_by=popularity.desc&first_air_date.gte=${hoje}`;
+            } else if (tipo === 'seasons') {
+                url = `${BASE_URL}/tv/on_the_air?api_key=${API_KEY}&language=pt-BR&page=1`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                grid.innerHTML = '';
+
+                if (data.results && data.results.length > 0) {
+                    // Removido o .slice(0, 12) para listar todos os resultados
+                    data.results.forEach(item => {
+                        const titulo = item.title || item.name;
+                        const poster = item.poster_path ? `${PROXY_URL}${TMDB_IMAGE_BASE}${item.poster_path}` : 'https://via.placeholder.com/150x225?text=Sem+Foto';
+                        const typeTag = (tipo === 'movies') ? 'movie' : 'tv';
+                        const isSeason = (tipo === 'seasons') ? 'true' : 'false';
+
+                        const htmlItem = `
+                            <div class="leque-item" onclick="adicionarDoLeque('${titulo.replace(/'/g, "\\'")}', '${typeTag}', ${isSeason}, ${item.id})">
+                                <div class="leque-thumb ${tipo === 'seasons' ? 'season-mode' : ''}" style="background-image: url('${poster}')"></div>
+                                <div class="leque-title">${titulo}</div>
+                            </div>
+                        `;
+                        grid.insertAdjacentHTML('beforeend', htmlItem);
+                    });
+                } else {
+                    grid.innerHTML = "<div style='font-size:11px; color:red;'>Nenhum item encontrado.</div>";
+                }
+            } catch (e) {
+                grid.innerHTML = "<div style='font-size:11px; color:red;'>Erro na API.</div>";
+            }
+        }
+
+        function adicionarDoLeque(nome, tipo, isSeason, id) {
+            if (proximosSelecionados.some(x => x.nome === nome)) return;
+            proximosSelecionados.push({ nome: nome, tipo: tipo, isSeason: isSeason, id: id });
+            renderizarChips();
+        }
+
+        function removerDoLeque(nome) {
+            proximosSelecionados = proximosSelecionados.filter(x => x.nome !== nome);
+            renderizarChips();
+        }
+
+        function renderizarChips() {
+            const container = document.getElementById('selected-upcoming-chips');
+            container.innerHTML = '';
+            proximosSelecionados.forEach(item => {
+                const sufixo = item.isSeason ? ' (Nova Temp.)' : '';
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="selected-chip">
+                        ${item.nome}${sufixo} <span onclick="removerDoLeque('${item.nome.replace(/'/g, "\\'")}')">×</span>
+                    </div>
+                `);
+            });
+        }
+
         async function gerarLoteNaTela() {
-            const textarea = document.getElementById('search-input');
-            const type = document.getElementById('type-select').value;
-            const layout = document.getElementById('layout-select').value;
-            const headerStyle = document.getElementById('header-select').value;
+            const txtReleased = document.getElementById('search-input-released');
             const holder = document.getElementById('inside-cards-holder');
             const masterBlock = document.getElementById('master-launch-block');
             
-            // Tratamento do cabeçalho escolhido
+            const headerStyle = document.getElementById('header-select').value;
+            const manualType = document.getElementById('manual-type-select').value;
             const titleEl = document.getElementById('header-title');
             const subtitleEl = document.getElementById('header-subtitle');
             
@@ -431,33 +563,59 @@
             }
 
             holder.innerHTML = ''; 
-            const linhas = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0).slice(0, 10);
+            const linhasReleased = txtReleased.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
-            if (linhas.length === 0) return alert('Por favor, digite ao menos o nome de um filme.');
+            if (linhasReleased.length === 0 && proximosSelecionados.length === 0) {
+                return alert('Por favor, digite obras ou adicione itens do Leque.');
+            }
 
             masterBlock.style.display = "block"; 
+            let totalInserido = 0;
 
-            for (let i = 0; i < linhas.length; i++) {
-                if (i > 0) {
-                    holder.insertAdjacentHTML('beforeend', '<div class="launch-separator"></div>');
-                }
-                await buscarMidiaTMDB(linhas[i], type, layout, holder);
+            for (let i = 0; i < linhasReleased.length; i++) {
+                if (totalInserido > 0) holder.insertAdjacentHTML('beforeend', '<div class="launch-separator"></div>');
+                await buscarMidiaTMDB(linhasReleased[i], manualType, holder, false, false, null);
+                totalInserido++;
+            }
+
+            for (let i = 0; i < proximosSelecionados.length; i++) {
+                if (totalInserido > 0) holder.insertAdjacentHTML('beforeend', '<div class="launch-separator"></div>');
+                await buscarMidiaTMDB(proximosSelecionados[i].nome, proximosSelecionados[i].tipo, holder, true, proximosSelecionados[i].isSeason, proximosSelecionados[i].id);
+                totalInserido++;
             }
         }
 
-        async function buscarMidiaTMDB(query, type, layout, elementoAlvo) {
+        async function buscarMidiaTMDB(query, type, elementoAlvo, forçarEmBreve, isSeason, idTMDB) {
             try {
                 const response = await fetch(`${BASE_URL}/search/${type}?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR`);
                 const data = await response.json();
 
                 if (data.results && data.results.length > 0) {
                     const midia = data.results[0];
-
+                    const idAtual = idTMDB || midia.id;
                     const titulo = midia.title || midia.name;
                     const dataLancamento = midia.release_date || midia.first_air_date;
                     const ano = dataLancamento ? dataLancamento.split('-')[0] : 'N/A';
                     const sinopse = midia.overview || 'A sinopse detalhada desta obra está sendo preparada pelos nossos editores.';
-                    const nota = midia.vote_average ? midia.vote_average.toFixed(1) : '0.0';
+                    
+                    let badgeNota = `⭐ ${midia.vote_average ? midia.vote_average.toFixed(1) : '0.0'}`;
+                    let classeBadge = '';
+
+                    if (isSeason && type === 'tv') {
+                        try {
+                            const resDetail = await fetch(`${BASE_URL}/tv/${idAtual}?api_key=${API_KEY}&language=pt-BR`);
+                            const detail = await resDetail.json();
+                            const numTemp = detail.number_of_seasons || 1;
+                            badgeNota = `✨ ${numTemp}ª TEMPORADA`;
+                            classeBadge = 'new-season';
+                        } catch (ed) {
+                            badgeNota = `✨ NOVA TEMP.`;
+                            classeBadge = 'new-season';
+                        }
+                    } else if (forçarEmBreve || !midia.vote_average || midia.vote_average === 0) {
+                        badgeNota = `📅 EM BREVE`;
+                        classeBadge = 'upcoming';
+                    }
                     
                     let generosTexto = 'Cinema';
                     if (midia.genre_ids && midia.genre_ids.length > 0) {
@@ -465,93 +623,54 @@
                     }
 
                     const imgPoster = midia.poster_path ? `${TMDB_IMAGE_BASE}${midia.poster_path}` : '';
-                    const imgBackdrop = midia.backdrop_path ? `${TMDB_IMAGE_BASE}${midia.backdrop_path}` : imgPoster;
+                    const imgBackdrop = midia.backdrop_path ? `${TMDB_BACKDROP_BASE}${midia.backdrop_path}` : midia.poster_path;
+                    
+                    const profilePath = imgPoster ? `${PROXY_URL}image.tmdb.org/t/p/w500${midia.poster_path}` : 'https://via.placeholder.com/300x450?text=Poster';
+                    const backdropPath = imgBackdrop ? `${PROXY_URL}image.tmdb.org/t/p/w780${midia.backdrop_path}` : profilePath;
 
-                    const coverPath = imgBackdrop ? `${PROXY_URL}${imgBackdrop}` : 'https://via.placeholder.com/780x450?text=Cinema';
-                    const profilePath = imgPoster ? `${PROXY_URL}${imgPoster}` : 'https://via.placeholder.com/300x450?text=Poster';
-
-                    let htmlFinal = '';
-
-                    if (layout === 'premium') {
-                        // LAYOUT COMPLETO ANTERIOR (Capa Grande + Perfil Sobreposto)
-                        htmlFinal = `
-                            <div class="premium-container">
-                                <div class="movie-cover-banner" style="background-image: url('${coverPath}')">
-                                    <div class="cover-fade"></div>
+                    const htmlFinal = `
+                        <div class="combo-container-duo" style="background-image: url('${backdropPath}')">
+                            <div class="duo-avatar" style="background-image: url('${profilePath}')"></div>
+                            <div class="duo-content">
+                                <div class="slim-title-row">
+                                    <div class="slim-title">${titulo}</div>
+                                    <div class="slim-rating ${classeBadge}">${badgeNota}</div>
                                 </div>
-                                <div class="profile-overlap-zone">
-                                    <div class="premium-avatar" style="background-image: url('${profilePath}')"></div>
-                                    <div class="premium-rating">⭐ ${nota}</div>
+                                <div class="metadata-tags-row">
+                                    <div class="tag-item blue">${type === 'movie' ? 'Filme' : 'Série'}</div>
+                                    <div class="tag-item">${ano}</div>
+                                    <div class="tag-item">${generosTexto}</div>
                                 </div>
-                                <div class="premium-content">
-                                    <div class="premium-title">${titulo}</div>
-                                    <div class="metadata-tags-row">
-                                        <div class="tag-item blue">${type === 'movie' ? 'Filme' : 'Série'}</div>
-                                        <div class="tag-item">${ano}</div>
-                                        <div class="tag-item">${generosTexto}</div>
-                                    </div>
-                                    <p class="synopsis-paragraph">${sinopse}</p>
-                                </div>
+                                <p class="synopsis-paragraph">${sinopse}</p>
                             </div>
-                        `;
-                    } else {
-                        // LAYOUT COMPACTO NOVO (Perfil na Esquerda + Nome e dados na Direita)
-                        htmlFinal = `
-                            <div class="slim-container">
-                                <div class="slim-avatar" style="background-image: url('${profilePath}')"></div>
-                                <div class="slim-content">
-                                    <div class="slim-title-row">
-                                        <div class="slim-title">${titulo}</div>
-                                        <div class="slim-rating">⭐ ${nota}</div>
-                                    </div>
-                                    <div class="metadata-tags-row">
-                                        <div class="tag-item blue">${type === 'movie' ? 'Filme' : 'Série'}</div>
-                                        <div class="tag-item">${ano}</div>
-                                        <div class="tag-item">${generosTexto}</div>
-                                    </div>
-                                    <p class="synopsis-paragraph">${sinopse}</p>
-                                </div>
-                            </div>
-                        `;
-                    }
+                        </div>
+                    `;
 
                     elementoAlvo.insertAdjacentHTML('beforeend', htmlFinal);
                 }
             } catch (error) {
-                console.error("Erro ao puxar dados do TMDB:", error);
+                console.error(error);
             }
         }
 
         function exportarImagemUnica() {
             const blocoMestre = document.getElementById('master-launch-block');
+            if (blocoMestre.style.display === "none") return alert('Monte a lista na tela primeiro.');
 
-            if (blocoMestre.style.display === "none" || document.getElementById('inside-cards-holder').innerHTML === "") {
-                return alert('Primeiro clique em "Montar Lista na Tela" para gerar o rascunho.');
-            }
-
-            const opcoes = {
-                scale: 3, // Qualidade Ultra-HD cristalina para ler em qualquer smartphone
+            html2canvas(blocoMestre, {
+                scale: 3, 
                 dpi: 300,
-                useCORS: true,           
-                allowTaint: false,
-                backgroundColor: "#0a0d14",
-                logging: false
-            };
-
-            html2canvas(blocoMestre, opcoes).then((canvas) => {
+                useCORS: true,
+                backgroundColor: "#0a0d14"
+            }).then((canvas) => {
                 canvas.toBlob((blob) => {
-                    if (!blob) return alert('Houve um erro técnico ao compilar o arquivo.');
-                    const arquivo = new File([blob], 'vitrine-cinema.png', { type: 'image/png' });
-                    
+                    if (!blob) return;
+                    const arquivo = new File([blob], 'vitrine.png', { type: 'image/png' });
                     if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-                        navigator.share({
-                            files: [arquivo],
-                            title: 'Minhas Indicações',
-                            text: 'Confira as sugestões de hoje! 🎬🍿'
-                        }).catch(err => console.log("Compartilhamento interrompido"));
+                        navigator.share({ files: [arquivo] }).catch(e => {});
                     } else {
                         const link = document.createElement('a');
-                        link.download = `vitrine-cinema-hd.png`;
+                        link.download = `cinema-status-hd.png`;
                         link.href = canvas.toDataURL('image/png');
                         link.click();
                     }
